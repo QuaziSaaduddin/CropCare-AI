@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CropCare AI Diagnosis</title>
+    <link rel="shortcut icon" href="/static/images/logo_bg_rem.png" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #f0f5f1;
+            --bg-card: #ffffff;
+            --text-primary: #1a1d1c;
+            --text-secondary: #5a6b64;
+            --text-muted: #7d8f87;
+            --accent: #2d8a4e;
+            --accent-light: #e8f5ec;
+            --accent-dark: #1c6b38;
+            --danger: #dc3545;
+            --danger-light: #fef2f3;
+            --warning: #e67e22;
+            --warning-light: #fff9f2;
+            --info: #2563eb;
+            --info-light: #eef2ff;
+            --border: #e2e8e9;
+            --border-light: #eef1f0;
+            --shadow-sm: 0 1px 2px rgba(26, 29, 28, 0.04);
+            --shadow-md: 0 4px 16px rgba(26, 29, 28, 0.06), 0 1px 4px rgba(26, 29, 28, 0.04);
+            --shadow-lg: 0 12px 32px rgba(26, 29, 28, 0.08), 0 2px 8px rgba(26, 29, 28, 0.04);
+            --shadow-xl: 0 20px 48px rgba(26, 29, 28, 0.12), 0 4px 12px rgba(26, 29, 28, 0.06);
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 20px;
+            --radius-xl: 24px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(170deg, #f4f9f5 0%, #eaf3ec 30%, #f0f5f1 60%, #f7faf7 100%);
+            background-attachment: fixed;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            letter-spacing: -0.01em;
+        }
+
+        /* Subtle animated background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse at 15% 20%, rgba(45, 138, 78, 0.03) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 75%, rgba(37, 99, 235, 0.02) 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 50%, rgba(45, 138, 78, 0.015) 0%, transparent 70%);
+            opacity: 0.8;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Header ─────────────────────── */
+        .header-bg {
+            background: linear-gradient(135deg, #ffffff 0%, #f9fbf9 40%, #f4f9f5 100%);
+            border-bottom: 1px solid var(--border-light);
+            padding: 2.5rem 0 2.2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-bg::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg,
+                    transparent 0%,
+                    var(--accent) 20%,
+                    #4caf6e 50%,
+                    var(--accent) 80%,
+                    transparent 100%);
+            opacity: 0.7;
+        }
+
+        .header-title {
+            color: var(--accent-dark);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            font-size: 2.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .header-logo {
+            width: 56px;
+            height: auto;
+            vertical-align: middle;
+            filter: drop-shadow(0 2px 6px rgba(45, 138, 78, 0.25));
+            transition: transform var(--transition);
+        }
+
+        .header-logo:hover {
+            transform: scale(1.08) rotate(-3deg);
+        }
+
+        .header-bg .lead {
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: -0.01em;
+            margin-top: 0.35rem;
+        }
+
+        /* ── Section Titles ────────────── */
+        .section-title {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.55rem;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 1.2em;
+            background: var(--accent);
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        /* ── Google-style Cards ────────── */
+        .google-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .google-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, var(--accent) 0%, #4caf6e 100%);
+            opacity: 0;
+            transition: opacity var(--transition);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+
+        .google-card:hover {
+            box-shadow: var(--shadow-xl);
+            border-color: #d5ddd6;
+            transform: translateY(-2px);
+        }
+
+        .google-card:hover::before {
+            opacity: 1;
+        }
+
+        /* ── Buttons ──────────────────── */
+        .btn-google {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: #fff;
+            border-radius: 50px;
+            font-weight: 600;
+            padding: 12px 28px;
+            border: none;
+            transition: all var(--transition);
+            letter-spacing: -0.01em;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(45, 138, 78, 0.25);
+        }
+
+        .btn-google:hover {
+            background: linear-gradient(135deg, #349a56 0%, #1e7a3e 100%);
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(45, 138, 78, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-google:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(45, 138, 78, 0.3);
+        }
+
+        .btn-google:disabled {
+            background: #b0cfb9;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-wiki {
+            border: 1.5px solid var(--border);
+            color: var(--info);
+            background: #fff;
+            font-weight: 500;
+            border-radius: 50px;
+            padding: 10px 20px;
+            transition: all var(--transition);
+            letter-spacing: -0.01em;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-wiki:hover {
+            background: var(--info-light);
+            color: #1d4ed8;
+            border-color: #c7d2fe;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ── File Input ───────────────── */
+        .form-control-file {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            width: 100%;
+            background: #fafcfb;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .form-control-file:hover {
+            border-color: var(--accent);
+            background: #f7fbf8;
+            box-shadow: 0 0 0 4px rgba(45, 138, 78, 0.05);
+        }
+
+        .form-control-file:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(45, 138, 78, 0.1);
+        }
+
+        /* ── Image Preview ────────────── */
+        .image-preview {
+            max-height: 180px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            display: none;
+            background: #fafcfb;
+            border: 1.5px solid var(--border-light);
+            margin: 0 auto;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition);
+            width: 100%;
+        }
+
+        .image-preview[style*="display: block"] {
+            animation: fadeInUp 0.35s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* ── Crop Categories ──────────── */
+        .crop-category {
+            background: #f7faf8;
+            color: var(--accent-dark);
+            padding: 1.25rem 1.1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            border: 1.5px solid #d5e8da;
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .crop-category::after {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(45, 138, 78, 0.04);
+            pointer-events: none;
+        }
+
+        .crop-category:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .crop-category h5 {
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .crop-tag {
+            display: inline-block;
+            background: #ffffff;
+            border: 1.5px solid #d5e8da;
+            color: var(--accent-dark);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            margin: 4px 3px;
+            font-weight: 500;
+            transition: all var(--transition);
+            letter-spacing: -0.01em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .crop-tag:hover {
+            background: var(--accent-light);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ── Remedy & Healthy Boxes ───── */
+        .remedy-box {
+            background: linear-gradient(135deg, #fef5f4 0%, #fef2f3 100%);
+            border-left: 4px solid var(--danger);
+            padding: 16px 18px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            text-align: left;
+            font-size: 0.88rem;
+            box-shadow: var(--shadow-sm);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .healthy-box {
+            background: linear-gradient(135deg, #f4faf6 0%, #eaf5ed 100%);
+            border-left: 4px solid var(--accent);
+            padding: 16px 18px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            text-align: left;
+            font-size: 0.88rem;
+            box-shadow: var(--shadow-sm);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .remedy-category {
+            font-size: 0.83rem;
+            margin-bottom: 0.85rem;
+            line-height: 1.55;
+        }
+
+        .remedy-category .badge {
+            font-weight: 600;
+            font-size: 0.72rem;
+            padding: 5px 11px;
+            border-radius: 50px;
+            letter-spacing: 0.01em;
+            text-transform: uppercase;
+        }
+
+        /* ── Result Area ──────────────── */
+        #result-1,
+        #result-2,
+        #result-3,
+        #result-4 {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        /* ── Loading Spinner ──────────── */
+        .spinner-border {
+            border-width: 0.18em;
+            width: 2.4rem;
+            height: 2.4rem;
+            color: var(--accent) !important;
+        }
+
+        /* ── Divider ──────────────────── */
+        hr {
+            border-color: var(--border-light);
+            opacity: 0.7;
+            margin: 2rem 0;
+        }
+
+        /* ── Panel Label ──────────────── */
+        .google-card h5.text-muted {
+            color: var(--text-muted) !important;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* ── Responsive ──────────────── */
+        @media (max-width: 767px) {
+            .header-title {
+                font-size: 1.8rem;
+            }
+
+            .header-logo {
+                width: 42px;
+            }
+
+            .google-card {
+                border-radius: var(--radius-md);
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .btn-google {
+                padding: 10px 22px;
+                font-size: 0.9rem;
+            }
+
+            .crop-category {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 575px) {
+            .header-bg {
+                padding: 1.5rem 0 1.2rem;
+            }
+
+            .header-title {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            .google-card {
+                padding: 1rem !important;
+            }
+        }
+
+        /* ── Scrollbar ────────────────── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c8d6cc;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8b8ac;
+        }
+
+        /* ── Alert Overrides ──────────── */
+        .alert-warning {
+            background: var(--warning-light);
+            border: 1.5px solid #f5d8b0;
+            border-radius: var(--radius-md);
+            font-size: 0.88rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .alert-danger {
+            border-radius: var(--radius-md);
+            font-size: 0.88rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ── Badge color refinements ──── */
+        .badge.bg-secondary {
+            background: #6b7d8a !important;
+            font-weight: 500;
+        }
+
+        .badge.bg-danger {
+            background: #dc3545 !important;
+            font-weight: 500;
+        }
+
+        .badge.bg-success {
+            background: #2d8a4e !important;
+            font-weight: 500;
+        }
+
+        /* ── Result title ─────────────── */
+        .google-card h4.fw-bold {
+            letter-spacing: -0.02em;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header-bg mb-5">
+        <div class="container">
+            <h1 class="header-title display-5">
+                <img src="/static/images/logo.png" alt="CropCare AI Logo" class="header-logo me-2">
+                CropCare AI
+            </h1>
+            <p class="text-muted lead mb-0">
+                <i class="ri-plant-line me-1"></i> Empowering farmers with instant, accurate crop disease diagnosis with
+                its remedies.
+            </p>
+            <p class="text-muted lead mb-0">AI model works on exactly 51 unique categories, which cover 9 different
+                crops</p>
+        </div>
+    </header>
+
+    <div class="container pb-5">
+
+        <h2 class="section-title text-center mb-4 justify-content-center">
+            <i class="ri-microscope-line" style="color: var(--accent); font-size: 1.4rem;"></i> Diagnosis Panel
+        </h2>
+        <p class="text-muted lead mb-2">Upload a clear photo of a sick leaf, and our AI will identify the issue from
+            known diseases and provide
+            immediate, actionable remedies.</p>
+        <div class="row" id="diagnosisGrid">
+        </div>
+
+        <hr class="mb-3">
+
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="section-title">
+                    <i class="ri-seedling-line" style="color: var(--accent); font-size: 1.4rem;"></i> Supported Crops
+                </h2>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="crop-category">
+                            <h5 class="mb-3 fw-bold">🌾 Grain Crops</h5>
+                            <span class="crop-tag">Corn (Maize)</span>
+                            <span class="crop-tag">Rice</span>
+                            <span class="crop-tag">Wheat</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="crop-category"
+                            style="background:#f4faf7; color:#1c6b38; border: 1.5px solid #c5e0cd;">
+                            <h5 class="mb-3 fw-bold">🌿 Cash Crops</h5>
+                            <span class="crop-tag" style="border-color:#c5e0cd; color:#1c6b38;">Cotton</span>
+                            <span class="crop-tag" style="border-color:#c5e0cd; color:#1c6b38;">Sugarcane</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="crop-category"
+                            style="background:#fef5f4; color:#b91c1c; border: 1.5px solid #f5d0ce;">
+                            <h5 class="mb-3 fw-bold">🍅 Veg & Fruit Crops</h5>
+                            <span class="crop-tag" style="border-color:#f5d0ce; color:#b91c1c;">Tomato</span>
+                            <span class="crop-tag" style="border-color:#f5d0ce; color:#b91c1c;">Potato</span>
+                            <span class="crop-tag" style="border-color:#f5d0ce; color:#b91c1c;">Pepper (Bell)</span>
+                            <span class="crop-tag" style="border-color:#f5d0ce; color:#b91c1c;">Grape</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Wikipedia Mapping Logic (Kept Intact)
+        function getWikiLink(diseaseName) {
+            const name = diseaseName.toLowerCase();
+            if (name.includes("corn") || name.includes("maize")) {
+                if (name.includes("gray leaf spot") || name.includes("cercospora")) return "https://en.wikipedia.org/wiki/Gray_leaf_spot";
+                if (name.includes("northern leaf blight")) return "https://en.wikipedia.org/wiki/Northern_corn_leaf_blight";
+                if (name.includes("rust")) return "https://en.wikipedia.org/wiki/Common_corn_rust";
+                if (name.includes("healthy")) return "https://en.wikipedia.org/wiki/Maize";
+            }
+            if (name.includes("rice")) {
+                if (name.includes("bacterial blight")) return "https://en.wikipedia.org/wiki/Bacterial_blight_of_rice";
+                if (name.includes("blast")) return "https://en.wikipedia.org/wiki/Rice_blast";
+            }
+            if (name.includes("wheat")) {
+                if (name.includes("brown") || name.includes("leaf rust")) return "https://en.wikipedia.org/wiki/Leaf_rust_(wheat)";
+                if (name.includes("black rust")) return "https://en.wikipedia.org/wiki/Stem_rust";
+                if (name.includes("yellow rust")) return "https://en.wikipedia.org/wiki/Wheat_stripe_rust";
+                if (name.includes("leaf blight") || name.includes("septoria")) return "https://en.wikipedia.org/wiki/Septoria_tritici_blotch";
+                if (name.includes("powdery mildew")) return "https://en.wikipedia.org/wiki/Blumeria_graminis_f._sp._tritici";
+                if (name.includes("scab")) return "https://en.wikipedia.org/wiki/Fusarium_head_blight";
+                if (name.includes("stem fly")) return "https://en.wikipedia.org/wiki/Atherigona_soccata";
+                if (name.includes("aphid")) return "https://en.wikipedia.org/wiki/Schizaphis_graminum";
+                if (name.includes("mite")) return "https://en.wikipedia.org/wiki/Penthaleus_major";
+                if (name.includes("healthy")) return "https://en.wikipedia.org/wiki/Wheat";
+            }
+            if (name.includes("cotton")) {
+                if (name.includes("american bollworm")) return "https://en.wikipedia.org/wiki/Helicoverpa_armigera";
+                if (name.includes("pink bollworm")) return "https://en.wikipedia.org/wiki/Pink_bollworm";
+                if (name.includes("bollworm")) return "https://en.wikipedia.org/wiki/Bollworm";
+                if (name.includes("aphid")) return "https://en.wikipedia.org/wiki/Aphis_gossypii";
+                if (name.includes("mealy bug")) return "https://en.wikipedia.org/wiki/Phenacoccus_solenopsis";
+                if (name.includes("whitefly")) return "https://en.wikipedia.org/wiki/Silverleaf_whitefly";
+                if (name.includes("thirps") || name.includes("thrips")) return "https://en.wikipedia.org/wiki/Thrips";
+                if (name.includes("red cotton bug")) return "https://en.wikipedia.org/wiki/Dysdercus_cingulatus";
+                if (name.includes("anthracnose")) return "https://en.wikipedia.org/wiki/Colletotrichum_gossypii";
+                if (name.includes("bacterial blight")) return "https://en.wikipedia.org/wiki/Xanthomonas_citri_subsp._malvacearum";
+                if (name.includes("healthy")) return "https://en.wikipedia.org/wiki/Cotton";
+            }
+            if (name.includes("sugarcane")) {
+                if (name.includes("red rot")) return "https://en.wikipedia.org/wiki/Glomerella_tucumanensis";
+                if (name.includes("red rust") || name.includes("redrust")) return "https://en.wikipedia.org/wiki/Puccinia_melanocephala";
+                if (name.includes("yellow rust")) return "https://en.wikipedia.org/wiki/Puccinia_kuehnii";
+                if (name.includes("mosaic")) return "https://en.wikipedia.org/wiki/Sugarcane_mosaic_virus";
+                if (name.includes("healthy")) return "https://en.wikipedia.org/wiki/Sugarcane";
+            }
+            if (name.includes("tomato")) {
+                if (name.includes("bacterial spot")) return "https://en.wikipedia.org/wiki/Xanthomonas_perforans";
+                if (name.includes("early blight")) return "https://en.wikipedia.org/wiki/Alternaria_solani";
+                if (name.includes("late blight")) return "https://en.wikipedia.org/wiki/Phytophthora_infestans";
+                if (name.includes("leaf mold")) return "https://en.wikipedia.org/wiki/Passalora_fulva";
+                if (name.includes("septoria")) return "https://en.wikipedia.org/wiki/Septoria_lycopersici";
+                if (name.includes("target spot")) return "https://en.wikipedia.org/wiki/Corynespora_cassiicola";
+                if (name.includes("yellow leaf curl")) return "https://en.wikipedia.org/wiki/Tomato_yellow_leaf_curl_virus";
+                if (name.includes("mosaic")) return "https://en.wikipedia.org/wiki/Tomato_mosaic_virus";
+                if (name.includes("spider mite")) return "https://en.wikipedia.org/wiki/Tetranychus_urticae";
+                if (name.includes("healthy")) return "https://en.wikipedia.org/wiki/Tomato";
+            }
+            if (name.includes("potato")) {
+                if (name.includes("early blight")) return "https://en.wikipedia.org/wiki/Alternaria_solani";
+                if (name.includes("late blight")) return "https://en.wikipedia.org/wiki/Phytophthora_infestans";
+                if (name.includes("healthy")) return "https://en.wikipedia.org/wiki/Potato";
+            }
+            if (name.includes("pepper")) {
+                if (name.includes("bacterial spot")) return "https://en.wikipedia.org/wiki/Xanthomonas_euvesicatoria";
+                if (name.includes("healthy")) return "https://en.wikipedia.org/wiki/Bell_pepper";
+            }
+            if (name.includes("grape")) {
+                if (name.includes("black rot")) return "https://en.wikipedia.org/wiki/Black_rot_(grape)";
+                if (name.includes("esca") || name.includes("measles")) return "https://en.wikipedia.org/wiki/Esca_(grape_disease)";
+                if (name.includes("leaf blight") || name.includes("isariopsis")) return "https://en.wikipedia.org/wiki/Pseudocercospora_vitis";
+                if (name.includes("healthy")) return "https://en.wikipedia.org/wiki/Grape";
+            }
+            return "https://en.wikipedia.org/wiki/Plant_pathology";
+        }
+
+        // Comprehensive Remedy Database mapped to predictions
+        function getRemedies(diseaseName) {
+            const name = diseaseName.toLowerCase();
+
+            // GRAIN CROPS
+            if (name.includes("corn") || name.includes("maize")) {
+                if (name.includes("cercospora") || name.includes("gray leaf spot")) return { p: "Plant resistant hybrids, practice a 1-to-2 year crop rotation away from corn, and implement tillage to bury infected surface residue.", c: "Apply fungicides containing strobilurins (e.g., azoxystrobin) or triazoles (e.g., propiconazole) if lesions appear on the ear leaf before tasseling.", o: "Apply Bacillus subtilis-based bio-fungicides during early vegetative stages to suppress spore germination." };
+                if (name.includes("common rust")) return { p: "Utilize rust-resistant corn hybrids. Plant early in the season to avoid peak spore loads blown in from southern regions.", c: "Fungicide applications (pyraclostrobin or tebuconazole) are highly effective but only economically viable if symptoms appear early on high-value seed corn or sweet corn.", o: "Copper-based fungicides can offer mild preventative protection if applied before heavy spore arrival." };
+                if (name.includes("northern leaf blight")) return { p: "Select hybrids with strong Ht-gene resistance. Practice crop rotation and bury crop residue to decrease local inoculum overwintering.", c: "Apply combination fungicides (strobilurin + triazole) at the VT (tasseling) to R1 (silking) stages if weather is consistently wet and cool.", o: "Use bio-fungicides containing Bacillus amyloliquefaciens to help colonize leaf surfaces and block infection paths." };
+                if (name.includes("healthy")) return { healthy: true, p: "Maintain balanced nitrogen/phosphorus/potassium soil fertility, optimize planting density to manage canopy moisture, and monitor regularly." };
+            }
+            if (name.includes("rice")) {
+                if (name.includes("bacterial blight")) return { p: "Grow resistant rice varieties (carrying Xa genes). Avoid excessive nitrogen fertilization, which softens plant tissues and invites infection. Maintain clean field drainage.", c: "Apply copper hydroxide mixed with streptocycline during early disease onset, though chemical effectiveness is generally limited once systemic.", o: "Seed treatment with Pseudomonas fluorescens and spray applications of fresh neem seed kernel extract." };
+                if (name.includes("blast")) return { p: "Avoid excess nitrogen fertilizer, regulate water depth uniformly across paddy fields, and clear wild grass hosts from field borders.", c: "Apply systemic fungicides such as tricyclazole, edifenphos, or azoxystrobin at the tillering and boot stages.", o: "Treat seeds with biological agents like Trichoderma harzianum and use biological control sprays containing Bacillus subtilis." };
+            }
+            if (name.includes("wheat")) {
+                if (name.includes("brown") || name.includes("leaf rust")) return { p: "Sow rust-resistant wheat varieties. Avoid late sowing to prevent the crop's critical growth stages from aligning with peak warm, humid weather.", c: "Spray triazole fungicides such as propiconazole or tebuconazole at the first sign of pustules on the flag leaf.", o: "Apply sulfur-based dusts or copper formulations early in the season to inhibit spore development." };
+                if (name.includes("black rust")) return { p: "Eradicate barberry bushes (the disease's alternate host) near wheat fields. Plant early-maturing, stem-rust-resistant varieties.", c: "Apply high-efficacy triazole or strobilurin fungicides immediately if environmental conditions favor rapid stem rust spread.", o: "Foliar sprays of neem oil formulations combined with bio-agents to reduce early pustule formation." };
+                if (name.includes("yellow rust")) return { p: "Plant stripe-rust-resistant cultivars. Monitor fields early in cold spring environments, as this rust thrives at lower temperatures than brown or black rust.", c: "Apply propiconazole or tebuconazole immediately upon detecting localized 'hotspots' or stripes on leaves in the field.", o: "Use preventative biological leaf sprays containing Pseudomonas fluorescens to inhibit early spore colonization." };
+                if (name.includes("leaf blight") || name.includes("septoria")) return { p: "Rotate crops with non-cereal options for at least 2 years. Plow under infected straw stubble and utilize clean, certified pathogen-free seeds.", c: "Apply broad-spectrum fungicides like prothioconazole or fluxapyroxad during the flag leaf emergence through flowering stages.", o: "Seed inoculation with Trichoderma viride to enhance early seedling vigor and reduce soil-borne inoculum." };
+                if (name.includes("powdery mildew")) return { p: "Avoid overly dense crop canopies by adjusting seeding rates. Limit heavy spring nitrogen applications that cause lush, highly susceptible succulent growth.", c: "Apply fungicides such as fenpropimorph, proquinazid, or tebuconazole if the disease progresses up toward the top two leaves.", o: "Spray potassium bicarbonate or neem oil solutions to disrupt the fungal mycelium on the leaf surfaces." };
+                if (name.includes("scab")) return { p: "Avoid planting wheat directly into previous corn residue. Select moderately resistant varieties and time irrigation to avoid high humidity during flowering.", c: "Apply triazole-based fungicides (such as prothioconazole + tebuconazole) specifically during early flowering (anthesis) to protect heads.", o: "Deploy biological antagonists like Bacillus amyloliquefaciens directly onto wheat heads during flowering to outcompete the fungus." };
+                if (name.includes("stem fly")) return { p: "Adjust sowing dates to avoid peak fly emergence periods. Increase seeding rates slightly to offset potential early seedling mortality.", c: "Use systemic seed treatments containing thiamethoxam or imidacloprid to protect young seedlings from early maggot tunneling.", o: "Conserve natural larval parasites and apply neem-based insecticides to the soil or lower stems during early growth stages." };
+                if (name.includes("aphid")) return { p: "Encourage natural predators by planting diverse border crops. Avoid excessive nitrogen inputs which cause rapid aphid population spikes.", c: "Spray systemic or contact insecticides such as dimethoate or imidacloprid if aphid counts cross economic thresholds prior to heading.", o: "Release or conserve local ladybug larvae, lacewings, and hoverfly larvae. Apply insecticidal soaps or 3% concentration neem oil sprays." };
+                if (name.includes("mite")) return { p: "Destroy volunteer wheat plants and grass weeds along field edges during the summer 'bridge' period to eliminate mite feeding zones.", c: "Apply specialized miticides or systemic insecticides like dimethoate if heavy silvering and leaf rolling are observed during dry spells.", o: "Encourage predatory mite populations. Dust fields with elemental sulfur, which serves as a mild miticide and crop nutrient." };
+                if (name.includes("healthy")) return { healthy: true, p: "Maintain robust crop rotation schedules, balanced soil fertility based on recent testing, proper seedbed preparation, and clean equipment." };
+            }
+
+            // CASH CROPS
+            if (name.includes("cotton")) {
+                if (name.includes("american bollworm")) return { p: "Plant Bt-cotton varieties expressing insecticidal proteins. Intercrop with trap crops like marigold or okra to draw moths away from cotton.", c: "Spray target-specific insecticides like chlorantraniliprole, emamectin benzoate, or indoxacarb when larval counts breach threshold levels.", o: "Release Trichogramma chilonis egg parasitoids. Apply Helicoverpa armigera Nuclear Polyhedrosis Virus (HaNPV) or Bacillus thuringiensis formulations." };
+                if (name.includes("pink bollworm")) return { p: "Maintain a strict non-Bt refuge crop percentage. Ensure timely termination of the crop and shred stalks immediately post-harvest to disrupt overwintering larvae.", c: "Deploy synthetic pyrethroids (e.g., cypermethrin) or spinosad, timed precisely with peak adult moth flights determined by pheromone monitoring.", o: "Install pheromone traps at high densities for mass mating disruption. Release sterile male pink bollworms if available in the region." };
+                if (name.includes("bollworm")) return { p: "Deep summer plowing to expose overwintering pupae to predators and sun. Monitor fields using pheromone traps to catch early population build-ups.", c: "Utilize targeted larvicides like flubendiamide or novaluron, alternating chemical classes to prevent rapid insect resistance development.", o: "Spray neem oil extracts (EC formulations) and introduce predatory assassin bugs or lacewings into the field ecosystem." };
+                if (name.includes("aphid")) return { p: "Avoid early-season broad-spectrum pesticide applications that kill off beneficial predatory insects. Manage weed hosts around field margins.", c: "Apply neonicotinoids like thiamethoxam or flonicamid when aphid colonies trigger leaves to curl and excrete heavy honeydew.", o: "Spray formulations of entomopathogenic fungi like Verticillium lecanii or apply botanical neem seed kernel extract (NSKE)." };
+                if (name.includes("mealy bug")) return { p: "Remove and burn infested alternate weed hosts (e.g., Parthenium). Clean all farm machinery to avoid carrying mealybug crawlers between fields.", c: "Apply systemic insecticides combined with a penetrative oil adjuvant, using active ingredients like buprofezin or profenofos directly to insect clusters.", o: "Conserve or introduce the predatory ladybird beetle Cryptolaemus montrouzieri (mealybug destroyer) and spray neem oil mixed with mild soap." };
+                if (name.includes("whitefly")) return { p: "Avoid late sowing and refrain from over-applying nitrogen fertilizers. Use yellow sticky traps across fields to monitor and trap migrating adults.", c: "Apply insect growth regulators like pyriproxyfen or diafenthiuron to control nymphs and adults while sparing beneficial insects.", o: "Deploy parasitic wasps (Encarsia formosa) and apply sprays of the entomopathogenic fungus Beauveria bassiana." };
+                if (name.includes("thirps") || name.includes("thrips")) return { p: "Maintain adequate soil moisture via timely irrigation, as thrips populations multiply rapidly under prolonged hot, dry soil conditions.", c: "Apply systemic seed treatments like imidacloprid or foliar sprays of fipronil or spinetoram during early vegetative stages if silvering occurs.", o: "Encourage predatory thrips and minute pirate bugs. Use regular foliar applications of neem oil or insecticidal soaps." };
+                if (name.includes("red cotton bug")) return { p: "Manually collect and destroy clusters of nymphs and adults during early infestations. Keep fields clear of debris and split cotton bolls on the soil.", c: "Foliar application of contact insecticides like malathion or carbaryl, targeted specifically at areas where bugs accumulate on mature bolls.", o: "Apply botanical formulations containing high-grade neem oil or target nymphs with insecticidal soap sprays directly." };
+                if (name.includes("anthracnose")) return { p: "Use acid-delinted, certified disease-free seed. Deeply plow cotton crop residues post-harvest to lower the survival rate of soil pathogens.", c: "Treat seeds with carboxin or thiram. Apply foliar sprays of copper oxychloride or azoxystrobin if weather becomes consistently wet during boll development.", o: "Treat seed with Trichoderma viride powder and use bio-fungicides based on Bacillus subtilis on young plants." };
+                if (name.includes("bacterial blight")) return { p: "Grow varieties bred with vertical resistance genes. Acid-delint seeds to eliminate external bacterial populations on seed fuzz.", c: "Spray a combination of copper oxychloride and streptomycin sulfate at the earliest detection of angular leaf spots.", o: "Apply biological seed protectants containing Pseudomonas fluorescens to reduce systemic colonization of seedlings." };
+                if (name.includes("healthy")) return { healthy: true, p: "Implement integrated pest management (IPM) protocols, use balanced nutrition regimes, ensure optimal plant spacing, and practice regular crop rotation." };
+            }
+            if (name.includes("sugarcane")) {
+                if (name.includes("red rot") || name.includes("redrot")) return { p: "Select healthy seed cane (setts) from disease-free nurseries. Practice a minimum 2-to-3 year crop rotation and ensure rapid field drainage.", c: "Chemical control is largely ineffective once systemic; focus on sett treatment using carbendazim or thiophanate-methyl before planting.", o: "Treat sugarcane setts with a slurry of Trichoderma harzianum before planting to protect node tissue from soil-borne spores." };
+                if (name.includes("red rust") || name.includes("redrust")) return { p: "Plant resistant sugarcane clones. Avoid excessive field humidity by practicing timely detrashing (removing old, dry lower leaves).", c: "Apply foliar sprays of mancozeb or triazole fungicides like tebuconazole if rust pustules spread across the middle canopy leaves.", o: "Foliar sprays of biological agents like Bacillus subtilis mixed with organic wetting agents to reduce spore germination rates." };
+                if (name.includes("yellow rust")) return { p: "Cultivate resistant varieties. Space rows properly to facilitate airflow and minimize prolonged leaf wetness within the lower sugarcane canopy.", c: "Apply triazole-class fungicides such as propiconazole at the first sign of yellow-orange linear lesions on leaves.", o: "Apply preventative sprays of neem-based formulations and copper-based organic compounds before rainy seasons." };
+                if (name.includes("mosaic")) return { p: "Use virus-free planting material derived from tissue culture. Rogue out and destroy infected, stunted sugarcane plants immediately.", c: "No chemical cure exists for the virus itself. Control vector populations (aphids) using targeted systemic insecticides if necessary.", o: "Control aphid vectors using biological oils, insecticidal soaps, and encourage native ladybug populations." };
+                if (name.includes("healthy")) return { healthy: true, p: "Ensure proper field sanitation, provide balanced macro- and micro-nutrients, practice proper crop rotations, and use certified healthy planting setts." };
+            }
+
+            // VEG & FRUIT CROPS
+            if (name.includes("tomato")) {
+                if (name.includes("bacterial spot")) return { p: "Purchase certified disease-free seeds and plugs. Avoid overhead sprinkler irrigation; instead, use drip systems to keep the foliage dry.", c: "Apply preventative copper-based bactericides mixed with mancozeb (which increases copper availability) early in wet seasons.", o: "Use bacteriophage sprays specific to Xanthomonas strains, or apply Bacillus subtilis formulations regularly to leaves." };
+                if (name.includes("early blight")) return { p: "Prune lower tomato leaves to prevent soil-splash inoculation. Apply organic mulch under plants and maintain a 2-year rotation away from solanaceous crops.", c: "Apply protectant fungicides like chlorothalonil or systemic options like azoxystrobin or difenoconazole upon first lower-leaf spotting.", o: "Apply copper octanoate (soap) or bio-fungicides containing Bacillus amyloliquefaciens to suppress fungal mycelium expansion." };
+                if (name.includes("late blight")) return { p: "Monitor weather for cool, wet tracking windows. Destroy all cull piles and volunteer potato/tomato plants that harbor the pathogen nearby.", c: "Apply highly effective oomycete-targeted fungicides like mefenoxam, fluopicolide, or cymoxanil immediately when regional blight alerts are issued.", o: "Apply preventative copper fungicides continuously before rain events and use biological leaf protectants aggressively." };
+                if (name.includes("leaf mold")) return { p: "Grow tomatoes in well-ventilated high tunnels or greenhouses, keeping relative humidity below 85% through fans and proper spacing.", c: "Apply broad-spectrum fungicides such as chlorothalonil, mancozeb, or strobilurins if symptoms surface in high-humidity setups.", o: "Apply potassium bicarbonate or sulfur sprays to alter leaf surface pH and inhibit fungal growth." };
+                if (name.includes("septoria")) return { p: "Practice strict weed control to eliminate horsenettle and nightshade hosts. Bury or remove all tomato debris at the end of the season.", c: "Apply protectant fungicides like mancozeb or chlorothalonil on a 7-to-14 day schedule during warm, rainy summer periods.", o: "Utilize copper-based treatments or foliar biological applications of Trichoderma-based formulas to protect low-canopy foliage." };
+                if (name.includes("target spot")) return { p: "Maintain adequate plant spacing to encourage rapid leaf drying. Avoid working in the fields when tomato foliage is wet from dew or rain.", c: "Apply fungicides containing boscalid, pyraclostrobin, or fluxapyroxad, alternating modes of action to circumvent pathogen resistance.", o: "Regular preventative foliar applications of neem oil or biological controls based on Bacillus species." };
+                if (name.includes("yellow leaf curl")) return { p: "Install physical fine-mesh insect screening in greenhouses. Promptly pull up and bag infected virus-source plants showing upright, yellowed leaf margins.", c: "Chemicals cannot cure the virus. Manage the whitefly vector using systemic insecticides like imidacloprid, cyantraniliprole, or dinotefuran.", o: "Control whiteflies using sticky traps, mineral oils, insecticidal soaps, or by introducing predatory mites (Amblyseius swirskii)." };
+                if (name.includes("mosaic")) return { p: "Use certified seed tested for ToMV. Practice strict hand-washing protocols and sanitize tools with trisodium phosphate (TSP) after handling plants.", c: "No chemical controls or viricides are available for infected plants; eradication of infected individuals is required.", o: "None available; protect plants using strict sanitation, tool sterilization, and choosing resistant varieties (Tm-2 or Tm-2^2 genes)." };
+                if (name.includes("spider mite")) return { p: "Avoid overhead dust accumulation on plants, which favors mite buildup. Keep fields properly irrigated to eliminate drought stress.", c: "Apply specific miticides like abamectin, bifenazate, or spiromesifen, ensuring complete spray coverage on the undersides of leaves.", o: "Release predatory mites such as Phytoseiulus persimilis. Apply horticultural oils, insecticidal soaps, or 1% concentration neem oil sprays." };
+                if (name.includes("healthy")) return { healthy: true, p: "Provide uniform drip irrigation, maintain balanced soil nutrition based on seasonal tests, trellis plants effectively, and scout foliage weekly." };
+            }
+            if (name.includes("potato")) {
+                if (name.includes("early blight")) return { p: "Maintain optimal vine nutrition (especially nitrogen) as old, stressed vines are highly susceptible. Practice a 3-year crop rotation.", c: "Apply scheduled protectant fungicides (e.g., chlorothalonil) or systemic triazoles/strobilurins starting mid-season when lower leaves show concentric rings.", o: "Apply copper fungicides early in the season or use biological treatments based on Bacillus subtilis to reduce spore viability." };
+                if (name.includes("late blight")) return { p: "Plant certified disease-free seed tubers. Destroy all volunteer potato plants early in spring, and avoid over-irrigating during cloudy weather.", c: "Apply systemic and translaminar oomycete fungicides like mandipropamid, fluazinam, or propamocarb upon initial regional disease discovery.", o: "Apply fixed copper or copper hydroxide protectants regularly before anticipated rain events to shield foliage." };
+                if (name.includes("healthy")) return { healthy: true, p: "Select high-quality certified seed tubers, practice adequate hilling to protect developing tubers from spores, and implement proper crop rotation." };
+            }
+            if (name.includes("pepper")) {
+                if (name.includes("bacterial spot")) return { p: "Use certified clean seed and rotate out of solanaceous crops for 2 years. Eliminate solanaceous weeds around field perimeters.", c: "Apply preventative copper-based sprays. If copper resistance is present, tank-mix copper with mancozeb to increase bacterial control efficacy.", o: "Utilize biological leaf sprays containing Bacillus amyloliquefaciens or apply actigard/systemic acquired resistance (SAR) inducers." };
+                if (name.includes("healthy")) return { healthy: true, p: "Provide steady moisture via drip irrigation to prevent blossom end rot, ensure balanced calcium and potassium levels, and utilize mulch layer." };
+            }
+            if (name.includes("grape")) {
+                if (name.includes("black rot")) return { p: "Meticulously prune out and destroy all mummified berries from the vines and ground during winter. Keep the vine canopy open for quick drying.", c: "Apply high-efficacy fungicides like myclobutanil, azoxystrobin, or mancozeb from bud break through early post-bloom stages.", o: "Apply copper or lime-sulfur sprays early in the growing season to suppress primary spore release from overwintered lesions." };
+                if (name.includes("esca") || name.includes("measles")) return { p: "Prune grapevines during dry winter weather when spore counts are lowest. Protect large pruning wounds immediately using physical wound sealants.", c: "No highly effective curative chemical controls exist for systemic wood infections; apply localized wound-protectant fungicides.", o: "Apply Trichoderma-based formulations directly onto fresh pruning wounds to prevent airborne wood-boring fungi from establishing." };
+                if (name.includes("leaf blight") || name.includes("isariopsis")) return { p: "Clean up fallen leaves in autumn to reduce the local overwintering spore bank. Prune lower shoots to increase airflow underneath the canopy.", c: "Apply protectant or systemic fungicides like mancozeb, copper oxychloride, or strobilurins if leaf spotting intensifies post-harvest.", o: "Use foliar sprays of neem oil formulations or copper hydroxide to reduce secondary spore spread during wet spells." };
+                if (name.includes("healthy")) return { healthy: true, p: "Practice strategic annual pruning to optimize fruit-to-foliar ratios, maintain sound trellis alignment, ensure clear under-canopy airflow, and test soil fertility." };
+            }
+
+            // Fallback
+            return { p: "Isolate affected plant. Ensure proper spacing for airflow.", c: "Consult a local agricultural extension officer for localized chemical treatments.", o: "Remove heavily damaged leaves." };
+        }
+
+        const grid = document.getElementById('diagnosisGrid');
+        for (let i = 1; i <= 4; i++) {
+            const visibilityClass = i === 1 ? '' : 'd-none d-md-block';
+            grid.innerHTML += `
+                <div class="col-12 col-md-3 mb-4 ${visibilityClass}">
+                    <div class="google-card p-4 text-center d-flex flex-column" id="panel-${i}">
+                        <h5 class="mb-3 text-muted">
+                            <i class="ri-image-line me-1"></i> Panel ${i}
+                        </h5>
+                        <form id="form-${i}" class="mb-auto">
+                            <input class="form-control-file mb-3" type="file" id="file-${i}" accept="image/*" required>
+                            <img id="preview-${i}" class="img-fluid w-100 mb-3 image-preview" alt="Image Preview">
+                            <button type="submit" class="btn btn-google w-100" id="btn-${i}">
+                                <i class="ri-search-line me-1"></i> Analyze Crop
+                            </button>
+                        </form>
+
+                        <div id="loading-${i}" class="mt-4" style="display: none;">
+                            <div class="spinner-border" role="status"></div>
+                            <p class="mt-2 text-muted small fw-medium">Running AI Analysis...</p>
+                        </div>
+                        <div id="result-${i}" class="mt-4" style="display: none;"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        for (let i = 1; i <= 4; i++) {
+            const fileInput = document.getElementById(`file-${i}`);
+            const preview = document.getElementById(`preview-${i}`);
+            const form = document.getElementById(`form-${i}`);
+            const btn = document.getElementById(`btn-${i}`);
+            const loading = document.getElementById(`loading-${i}`);
+            const resultBox = document.getElementById(`result-${i}`);
+
+            fileInput.addEventListener('change', function () {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                        resultBox.style.display = 'none';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                loading.style.display = 'block';
+                resultBox.style.display = 'none';
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch('/predict', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    loading.style.display = 'none';
+                    btn.disabled = false;
+
+                    if (data.success) {
+                        if (data.confidence > 60) {
+                            const remedyData = getRemedies(data.disease);
+                            const wikiUrl = getWikiLink(data.disease);
+
+                            const boxClass = remedyData.healthy ? 'healthy-box' : 'remedy-box';
+                            const titleColor = remedyData.healthy ? '#1e8e3e' : '#d93025';
+
+                            let treatmentsHtml = `
+                                <div class="remedy-category">
+                                    <span class="badge bg-secondary mb-1">🛡️ Preventative Measures</span>
+                                    <p class="text-muted mb-2">${remedyData.p}</p>
+                                </div>
+                            `;
+
+                            if (!remedyData.healthy) {
+                                treatmentsHtml += `
+                                    <div class="remedy-category">
+                                        <span class="badge bg-danger mb-1">🧪 Chemical Control</span>
+                                        <p class="text-muted mb-2">${remedyData.c}</p>
+                                    </div>
+                                    <div class="remedy-category">
+                                        <span class="badge bg-success mb-1">🌱 Organic/Bio Control</span>
+                                        <p class="text-muted mb-0">${remedyData.o}</p>
+                                    </div>
+                                `;
+                            }
+
+                            resultBox.innerHTML = `
+                                <h4 class="fw-bold mb-1" style="color: ${titleColor};">${data.disease}</h4>
+                                <p class="mb-3 text-muted small">AI Confidence: <strong>${data.confidence}%</strong></p>
+                                <div class="${boxClass} mb-3 shadow-sm">
+                                    <h6 class="fw-bold mb-3 border-bottom pb-2">Treatment Plan</h6>
+                                    ${treatmentsHtml}
+                                </div>
+                                <a href="${wikiUrl}" target="_blank" class="btn btn-wiki w-100">
+                                    📖 Know More on Wikipedia
+                                </a>
+                            `;
+                        } else {
+                            resultBox.innerHTML = `
+                                <div class="alert alert-warning text-dark border-warning" role="alert">
+                                    <h6 class="fw-bold">Model Unsure (${data.confidence}%)</h6>
+                                    Image is unclear or disease is not recognized. <strong>Please upload a clearer, closer image of the leaf.</strong>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        resultBox.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+                    }
+                    resultBox.style.display = 'block';
+
+                } catch (error) {
+                    loading.style.display = 'none';
+                    btn.disabled = false;
+                    resultBox.innerHTML = `<div class="alert alert-danger">Server connection failed.</div>`;
+                    resultBox.style.display = 'block';
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
